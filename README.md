@@ -4,7 +4,7 @@ Liming Hu
 
 ([dawninghu@gmail.com](mailto:dawninghu@gmail.com))
 
-1. Data Source
+Data Source
 
 The [Large Movie Review Dataset](https://ai.stanford.edu/~amaas/data/sentiment/) is a standard benchmark containing 50,000 polarized movie reviews from IMDb designed for binary sentiment classification.
 
@@ -47,7 +47,7 @@ When people train machine learning models on this dataset, they rarely use the a
 
 - **Standard Transformer Limits:** Models like BERT or DistilBERT have a hard architectural limit of **512 tokens**. Reviews longer than this are automatically cut off at the 512th token.
 
-1. preprocessing
+preprocessing
 
 We directly load the data from hugging Face, and tokenize it using DistilBERT model:
 
@@ -101,7 +101,7 @@ test_subset.set_format(type="torch", columns=\["input_ids", "attention_mask", "l
 | Hybrid transformer and Mamba model:<br><br>Mamba:<br><br>self**.**mamba **\=** Mamba(<br><br>d_model**\=**embed_dim, _\# Model dimension_<br><br>d_state**\=**16, _\# SSM state expansion factor_<br><br>d_conv**\=**4, _\# Local convolution width_<br><br>expand**\=**2 _\# Block expansion factor_<br><br>)<br><br>raw_hybrid_model **\=** HybridMambaTransformerClassifier(<br><br>vocab_size**\=**tokenizer**.**vocab_size,<br><br>embed_dim**\=**256,<br><br>num_heads**\=**8,<br><br>hidden_dim**\=**512,<br><br>num_layers**\=**4,<br><br>dropout**\=**0.2 _#0.1_<br><br>) |                                | learning_rate**\=**5e-5, _\# Stable learning rate profile for scaling to large raw tokens_<br><br>per_device_train_batch_size**\=**32, _\# Increased batch size for processing high data density efficiently_<br><br>per_device_eval_batch_size**\=**32,<br><br>num_train_epochs**\=**15, _#8, # 3 full epochs across 25k samples provides deep convergence patterns_<br><br>weight_decay**\=**0.01,<br><br>eval_strategy**\=**"epoch",<br><br>save_strategy**\=**"epoch",<br><br>load_best_model_at_end**\=True**,           | 0.8414           |
 | Pure Mamba Architecture:<br><br>raw_mamba_model **\=** PureMambaClassifier(<br><br>vocab_size**\=**tokenizer**.**vocab_size,<br><br>embed_dim**\=**256,<br><br>num_layers**\=**6, _\# Stacked layer depth_<br><br>dropout**\=**0.1<br><br>)                                                                                                                                                                                                                                                                                                                                        |                                | learning_rate**\=**5e-5,<br><br>per_device_train_batch_size**\=**32,<br><br>per_device_eval_batch_size**\=**32,<br><br>num_train_epochs**\=**15,<br><br>weight_decay**\=**0.01,<br><br>eval_strategy**\=**"epoch",<br><br>save_strategy**\=**"epoch",<br><br>load_best_model_at_end**\=True**,                                                                                                                                                                                                                                | 0.8785           |
 
-1. Summary:
+Summary:
 
 From the above table, we can see that the finetuned DistilBERT transformer architecture has the highest test accuracy, the pure Mamba architecture trained from scratch has quite a good performance, accuracy: 0.8785, and it can train and inference at high speed. The Customed transformer architecture trained from scratch has a good performance: 0.8673. The hybrid model of transformer and Mamba has not so bad performance: 0.84. I believe the performance can be improved if we have more data.
 
